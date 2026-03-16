@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Harry Beaumont — AI Evangelist | Ometria</title>
+<meta name="description" content="Harry Beaumont — AI Evangelist application for Ometria. Builder of production AI automation systems: 5-agent stack, 112,000+ lines of code, Claude API in production daily. Practical AI that makes work faster, simpler, and more scalable." />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { min-height: 100vh; background: #FAF5EF; font-family: 'Georgia', 'Times New Roman', serif; color: #1a1a1a; -webkit-font-smoothing: antialiased; }
+  nav::-webkit-scrollbar { display: none; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ─── Brand — Ometria ────────────────────────────────────────────────────────
+const ACCENT = "#19194B";
+const ACCENT_LIGHT = "#E8E9F3";
+const ACCENT_MID = "#2A2B5F";
+const CORAL = "#EE5B5B";
+const CORAL_LIGHT = "#FDE8E8";
+const WARM_BG = "#FAF5EF";
+const WARM_BG2 = "#F2EAE1";
+
+// ─── Data ───────────────────────────────────────────────────────────────────
+
+const STATS = [
+  { label: "AI Agents in Production", value: 5, suffix: "" },
+  { label: "Lines of Agent Code", value: 112, suffix: "K+" },
+  { label: "API Integrations Built", value: 20, suffix: "+" },
+  { label: "Years Building at Scale", value: 7, suffix: "+" },
+];
+
+const NAV_SECTIONS = [
+  { id: "match", label: "Role Match" },
+  { id: "timeline", label: "Timeline" },
+  { id: "architecture", label: "Architecture" },
+  { id: "agents", label: "AI Agents" },
+  { id: "tools", label: "Tools" },
+  { id: "examples", label: "Your Examples" },
+  { id: "ai-practice", label: "AI Practice" },
+  { id: "lessons", label: "Lessons" },
+  { id: "why-ometria", label: "Why Ometria" },
+];
+
+const INTEGRATIONS = [
+  { name: "Claude API", category: "ai" },
+  { name: "OpenAI", category: "ai" },
+  { name: "ElevenLabs", category: "ai" },
+  { name: "Hostaway API", category: "platform" },
+  { name: "Airbnb", category: "platform" },
+  { name: "Booking.com", category: "platform" },
+  { name: "Stripe", category: "payments" },
+  { name: "Telleroo", category: "payments" },
+  { name: "Tide", category: "payments" },
+  { name: "Signable", category: "ops" },
+  { name: "Cloudinary", category: "ops" },
+  { name: "Twilio", category: "comms" },
+  { name: "WhatsApp", category: "comms" },
+  { name: "Slack API", category: "comms" },
+  { name: "Google Sheets", category: "ops" },
+  { name: "Cloudflare Workers", category: "infra" },
+  { name: "Vercel", category: "infra" },
+  { name: "Replit", category: "infra" },
+  { name: "GitHub", category: "infra" },
+  { name: "Tailscale", category: "infra" },
+];
+
+const INTEGRATION_COLORS = {
+  ai: { bg: CORAL_LIGHT, color: CORAL },
+  platform: { bg: "#e8f4f0", color: "#2d6a4f" },
+  payments: { bg: "#fff3e0", color: "#a0622d" },
+  ops: { bg: ACCENT_LIGHT, color: ACCENT_MID },
+  comms: { bg: "#fce8ee", color: "#8c3a5a" },
+  infra: { bg: "#f0f0f0", color: "#555555" },
+};
+
+const TIMELINE = [
+  { year: "2013–2017", title: "BSc Real Estate (Hons) — Nottingham Trent University", detail: "RICS-accredited degree. Placement year at Salloway Property Consultants covering valuations, agency, and development appraisals across the East Midlands.", type: "education" },
+  { year: "2017–2018", title: "MSc International Real Estate Investment & Finance (Incomplete) — NTU", detail: "Began advanced studies in real estate finance and investment analysis before leaving to build Comfort Short Stays full-time.", type: "education" },
+  { year: "2017–2019", title: "Founded HBS Apartments / Comfort Short Stays", detail: "Started with 15 units. Scaled to 150+ properties at peak, £450k revenue in a single month. Began using off-the-shelf PMS tools and quickly found their limits — seeding the decision to build my own systems.", type: "founded" },
+  { year: "2019–2020", title: "Co-founded Urbanosa Ltd", detail: "Linen hire and laundry logistics business servicing 70+ short-stay apartments. Built the operational playbook for turnaround logistics at scale.", type: "founded" },
+  { year: "2020–Present", title: "Founded Wrenstone Stays Ltd / Key Stays", detail: "Rebuilt from the ground up. Currently managing 68 properties via Hostaway, Airbnb & Booking.com. Built the entire internal AI tools stack from scratch — 5-agent automation system, dynamic pricing engine, ops dashboard, AI guest comms running in production daily.", type: "founded" },
+  { year: "2023–Present", title: "Deep API Integration & AI Systems Build", detail: "Moved from off-the-shelf tools to building custom AI-powered automation. Claude API in production for guest communication classification. ElevenLabs Conversational AI for phone agents. Custom dynamic pricing engine. Inter-agent messaging protocols. 112,000+ lines of agent code across 85+ scripts.", type: "ai" },
+  { year: "2024–Present", title: "Founded Midlands Digital AI", detail: "AI automation consultancy helping East Midlands SMEs implement practical AI solutions. Packaging the same internal AI tooling approach — agents, workflows, dashboards — for other businesses.", type: "founded" },
+];
+
+const AGENTS = [
+  { title: "Communications Agent", size: "v3.1 · 2.7MB · 31 scripts", summary: "22-intent classification, Claude API auto-drafting, self-learning feedback loop. Production AI handling real messages daily.", detail: "22-intent classification system with deterministic playbook routing — every incoming message is classified, a response is auto-drafted via the Claude API, and the system either auto-sends or queues for human review. Pulls live reservation context from platform API. Includes mood tracking, satisfaction scoring, review risk prediction, automated payment collection with chase sequences, proactive upsell triggers, concierge services, and a self-improving learning system that tracks which responses get edited and why — feeding corrections back into prompts over time. Typical day: 127 messages processed, 69 fully automated. Response time: from 25+ mins to under 2 mins.", tags: ["Claude API", "22 Intents", "Self-Learning", "Production Daily", "Stripe"] },
+  { title: "Finance Agent", size: "v3.0 · 115K chars", summary: "Complete financial controller across 7 domains. Deposits to VAT compliance.", detail: "Covers guest finances (deposits, damage charges, invoicing), owner finances (statements, commission calculation, payouts), contractor payments via Telleroo API, platform reconciliation (Airbnb/Booking.com/Stripe), bank reconciliation with Tide statement import, cash flow forecasting (30/60/90 days), and VAT compliance. Includes revenue leakage detection, duplicate payment detection, and automated discrepancy investigation.", tags: ["Telleroo API", "Stripe", "Tide", "7 Domains", "Reconciliation"] },
+  { title: "Onboarding Agent", size: "v1.0 · 2MB · 19 scripts", summary: "11-stage pipeline from enquiry to live listing. Contractor dispatch, e-signatures, compliance.", detail: "11-stage property onboarding pipeline automating the entire journey from initial enquiry to live listing. Manages contractor dispatch (photographers, cleaners, plumbers, electricians), Signable e-signature integration for contracts, Cloudinary image management, gas safety & EICR compliance tracking, stuck property alerts, and a 459K-char Operations Master file orchestrating the whole flow.", tags: ["11-Stage Pipeline", "Signable API", "Cloudinary", "Compliance"] },
+  { title: "Maintenance Agent", size: "v2.2 · 16 scripts", summary: "Full maintenance lifecycle. Auto-triage, contractor dispatch, chase sequences, learning.", detail: "Automatic issue detection and triage by category (plumbing, electrical, appliances, locksmith, etc.), contractor dispatch with cascading team alerts, chase sequences for unresponsive contractors, completion tracking, WhatsApp integration for real-time updates, and a learning system that improves triage accuracy over time.", tags: ["WhatsApp", "Issue Triage", "Dispatch", "Self-Learning"] },
+  { title: "Voice Agent", size: "8 scripts", summary: "ElevenLabs Conversational AI backend with Cloudflare Worker. Real-time context delivery with security controls.", detail: "Backend for ElevenLabs voice agents handling phone calls. Cloudflare Worker serves real-time reservation context, listing details, and access codes — with hard security controls that make it physically impossible to leak access codes to unpaid guests. Tested against 4 social engineering attack vectors. Supports 32 languages. Call scoring across 5 criteria.", tags: ["ElevenLabs", "Cloudflare Workers", "Voice AI", "Security Controls"] },
+];
+
+const TOOLS = [
+  { title: "KeyStays Ops Dashboard", url: "https://ops.keystays.uk", description: "Next.js operations dashboard (221 commits, 216 deployments). 13 sections covering: operations overview, guest comms, phone, pricing, maintenance, finance, pipeline, lettings, reports, properties, and agent health monitoring. Real-time visibility across 8 operational queues. Every action syncs back to Google Sheets as the source of truth.", tags: ["Next.js", "React", "221 Commits", "13 Sections", "Vercel"], activity: "221 commits · Live in production" },
+  { title: "Dynamic Pricing Engine", url: "https://ops.keystays.uk/pricing", description: "Flask-based pricing engine managing rates across 68 live properties. Calls the platform API every morning at 6am to push optimised rates. Local event-based pricing boosts (football fixtures +25–30%, graduation weeks +35%, festivals +15%), competitor rate monitoring, per-property overrides, dry-run mode for testing.", tags: ["Python/Flask", "API Integration", "68 Properties", "Daily Automation"] },
+  { title: "Property Reports Engine", description: "Revenue projection tool powered by real performance data from 68 live properties. Enter a property address and it calculates projected income based on actual portfolio performance. Built as an acquisition analysis and sales tool.", tags: ["Data Analysis", "Revenue Modelling", "Sales Tool"] },
+  { title: "Custom Platform & Infrastructure", description: "Bespoke platform with 600+ API endpoints handling the full operational lifecycle. Cloudflare Workers for edge logic, headless Mac Mini M4 with Tailscale running scraping and scheduled automation tasks, inter-agent messaging protocol for cross-agent coordination.", tags: ["600+ Endpoints", "Cloudflare Workers", "Mac Mini M4", "Tailscale"] },
+];
+
+const EXAMPLE_PROJECTS = [
+  {
+    theirExample: "AI-assisted customer support triage and response drafting",
+    myBuild: "Communications Agent — 22-Intent Classification System",
+    detail: "Every incoming guest message is classified across 22 intent categories using the Claude API. Routine responses are auto-sent. Anything involving money, complaints, or security is queued for human review. Self-learning feedback loop tracks which responses get edited and feeds corrections back into prompts. 127 messages per day, 69 fully automated, response time from 25+ mins to under 2 mins.",
+    status: "Live in production"
+  },
+  {
+    theirExample: "Automated document or invoice processing workflows",
+    myBuild: "Finance Agent — 7-Domain Financial Automation",
+    detail: "Handles guest deposit collection, owner statement generation, contractor payments via Telleroo API, platform reconciliation across Airbnb/Booking.com/Stripe, bank reconciliation with Tide statement import, VAT compliance, and 30/60/90-day cash flow forecasting. Revenue leakage detection and duplicate payment prevention built in.",
+    status: "Live in production"
+  },
+  {
+    theirExample: "Internal reporting agents that generate weekly summaries",
+    myBuild: "Ops Dashboard — 13-Section Operational Intelligence",
+    detail: "Real-time dashboard tracking 8 operational queues, auto-send rates, hours saved, agent health monitoring (heartbeats, error counts, version tracking), revenue by property, maintenance pipeline, and local event context (weather, football fixtures, festivals). Every morning it tells me exactly what needs attention.",
+    status: "221 commits · Live"
+  },
+  {
+    theirExample: "Sales research assistants that prepare account briefings",
+    myBuild: "Property Reports Engine — Revenue Projection System",
+    detail: "Paste a property address or Rightmove/Zoopla URL and it calculates projected STR income based on actual performance data from 68 live properties. Used as an acquisition analysis tool and for landlord onboarding conversations — essentially a sales research tool for the property pipeline.",
+    status: "Live at reports.keystays.co.uk"
+  },
+  {
+    theirExample: "Marketing workflow automation and campaign reporting",
+    myBuild: "Dynamic Pricing Engine — Automated Revenue Management",
+    detail: "Calls the platform API every morning at 6am to push optimised rates across all 68 properties. Automatically identifies upcoming local events and applies pricing boosts. Monitors competitor rates. Generates financial performance dashboards. A complete revenue marketing automation system running unattended.",
+    status: "Daily 6am automation · Live"
+  },
+];
+
+const AI_PRACTICE = [
+  { title: "Production AI — Not Demos", detail: "The Communications Agent runs in production every day. It handles real messages, processes real payments, and makes real decisions. I've learned the hard way what breaks when you put AI into a real operational loop — and how to build guardrails that prevent it from breaking in ways that cost money or trust." },
+  { title: "Practical Builder, Not Researcher", detail: "I don't come from an academic ML background. I come from running a business where automating the right processes was the difference between scaling and drowning. Every system I've built started with a real workflow problem, not a model capability. That's exactly the approach your job description describes." },
+  { title: "Deterministic + Generative Hybrid Architecture", detail: "My best AI systems use a deterministic routing layer (rule-based, predictable, auditable) on top of which sits a generative layer (Claude, context-aware, flexible). The 22-intent classification system is the clearest example — reliable outcomes with AI-quality responses." },
+  { title: "Self-Learning Infrastructure", detail: "Built explicit feedback mechanisms that track which AI-drafted responses get edited before sending, what patterns those edits follow, and feed corrections back into system prompts over time. The system gets measurably better as it runs." },
+  { title: "AI Consultancy Applied", detail: "Through Midlands Digital AI I've packaged the same approach for other businesses — identifying highest-ROI processes to automate, building lightweight agent workflows, and handing over tools that non-technical operators can use. Understanding what works outside a developer context matters for internal tooling." },
+];
+
+const LESSONS = [
+  { title: "Deterministic routing before generative responses", detail: "Early on I let Claude handle everything end-to-end. Impressive but unpredictable. The breakthrough was building a deterministic classification layer first, then using Claude for response generation within guardrails. Reliability went up dramatically — and internal users trusted the output." },
+  { title: "Human-in-the-loop is a design decision, not a safety net", detail: "My system auto-sends routine responses but queues anything involving money, complaints, or security for human review. The line isn't 'AI vs. human' — it's knowing which decisions have reversible consequences and which don't. Internal tools need the same thinking." },
+  { title: "Context management matters more than prompt cleverness", detail: "The hardest engineering problem wasn't writing good prompts — it was getting the right context to the model at the right time. Reservation details, guest history, property-specific quirks, previous messages. Context quality determines output quality." },
+  { title: "Build around the workflow, not the model", detail: "Every failed automation started with 'what can the AI do?' Every successful one started with 'what does this workflow actually look like?' The best internal AI tools are built around real operational processes. I start with a process map before writing a single prompt." },
+  { title: "Adoption requires trust — trust requires explainability", detail: "Through the AI consultancy I've learned that internal tools live or die on whether the people using them trust what the AI is doing. Building in visibility — showing your work, making reasoning transparent — is as important as the underlying capability." },
+];
+
+// ─── Hooks & Components ─────────────────────────────────────────────────────
+
+function useCounter(target, duration = 2000, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime = null;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const p = Math.min((ts - startTime) / duration, 1);
+      setCount(Math.floor(p * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, start]);
+  return count;
+}
+
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setV(true); obs.disconnect(); } }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return <div ref={ref} style={{ opacity: v ? 1 : 0, transform: v ? "translateY(0)" : "translateY(20px)", transition: `all 0.6s ease ${delay}s` }}>{children}</div>;
+}
+
+function StatCard({ stat, index, inView }) {
+  const count = useCounter(stat.value, 1800, inView);
+  return (
+    <div style={{ textAlign: "center", padding: "20px 12px", opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(15px)", transition: `all 0.5s ease ${0.1 * index}s` }}>
+      <div style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 300, color: CORAL, letterSpacing: "-1px", fontFamily: "'Georgia', serif" }}>
+        {stat.prefix || ""}{count}{stat.suffix || ""}
+      </div>
+      <div style={{ fontSize: 12, fontFamily: "system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "1.5px", color: "#806a56", marginTop: 6 }}>
+        {stat.label}
+      </div>
+    </div>
+  );
+}
+
+function ExpandableCard({ item, defaultOpen = false, accentColor = null }) {
+  const [expanded, setExpanded] = useState(defaultOpen);
+  const isClickable = !!item.url;
+  const [hovered, setHovered] = useState(false);
+  const ac = accentColor || ACCENT;
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: "24px 28px",
+        background: hovered ? "#FFFFFF" : "#FEFCF9",
+        border: `1px solid ${hovered ? ac + "44" : "#e8e2d8"}`,
+        borderRadius: 8,
+        transition: "all 0.25s ease",
+        boxShadow: hovered ? "0 2px 12px rgba(0,0,0,0.04)" : "none",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: expanded ? 10 : 0 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: item.summary ? 6 : 0, flexWrap: "wrap" }}>
+            <h3 style={{ fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 400, margin: 0, color: "#1a1a1a" }}>
+              {item.title}
+            </h3>
+            {item.size && <span style={{ fontSize: 11, fontFamily: "system-ui, sans-serif", padding: "2px 8px", background: WARM_BG2, color: "#806a56", borderRadius: 3 }}>{item.size}</span>}
+          </div>
+          {item.summary && !expanded && (
+            <p style={{ fontSize: "clamp(13px, 1.8vw, 14px)", color: "#8a8580", margin: 0, lineHeight: 1.5 }}>{item.summary}</p>
+          )}
+          {item.activity && (
+            <div style={{ fontSize: 11, fontFamily: "system-ui, sans-serif", color: "#2d6a4f", marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2d6a4f", display: "inline-block" }} />
+              {item.activity}
+            </div>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0, marginTop: 4 }}>
+          {isClickable && (
+            <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontFamily: "system-ui, sans-serif", color: CORAL, textDecoration: "none", opacity: hovered ? 1 : 0.5, transition: "opacity 0.2s" }} onClick={(e) => e.stopPropagation()}>
+              Visit ↗
+            </a>
+          )}
+          {(item.detail || item.description) && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              style={{ background: "none", border: `1px solid ${ac + "44"}`, borderRadius: 4, padding: "3px 10px", cursor: "pointer", fontSize: 11, fontFamily: "system-ui, sans-serif", color: ac, transition: "all 0.2s" }}
+            >
+              {expanded ? "Less" : "More"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ overflow: "hidden" }}>
+          <p style={{ fontSize: "clamp(13px, 1.8vw, 15px)", lineHeight: 1.65, color: "#5a5550", margin: "8px 0 14px" }}>
+            {item.detail || item.description}
+          </p>
+          {item.tags && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {item.tags.map((tag, i) => (
+                <span key={i} style={{ fontSize: 11, fontFamily: "system-ui, sans-serif", padding: "3px 10px", background: tag.includes("Claude") || tag.includes("ElevenLabs") ? CORAL_LIGHT : WARM_BG2, color: tag.includes("Claude") || tag.includes("ElevenLabs") ? CORAL : "#7a7269", borderRadius: 4, letterSpacing: "0.3px", fontWeight: tag.includes("Claude") || tag.includes("Production") ? 600 : 400 }}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SectionHeading({ id, children, accent = false }) {
+  return (
+    <h2 id={id} style={{ fontSize: 13, fontFamily: "system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "2.5px", color: accent ? CORAL : "#806a56", fontWeight: 500, margin: "0 0 24px", paddingBottom: 12, borderBottom: `1px solid ${accent ? CORAL + "33" : "#e8e2d8"}`, scrollMarginTop: 60 }}>
+      {children}
+    </h2>
+  );
+}
+
+// ─── Architecture Diagram ───────────────────────────────────────────────────
+
+function ArchitectureDiagram() {
+  const agents = [
+    { label: "Comms\nAgent", x: 80, y: 90, w: 80, h: 50, color: CORAL },
+    { label: "Finance\nAgent", x: 210, y: 90, w: 80, h: 50, color: "#a0622d" },
+    { label: "Onboard\nAgent", x: 340, y: 90, w: 80, h: 50, color: "#2d6a4f" },
+    { label: "Maint.\nAgent", x: 470, y: 90, w: 80, h: 50, color: "#8c3a5a" },
+    { label: "Voice\nAgent", x: 600, y: 90, w: 80, h: 50, color: ACCENT_MID },
+  ];
+
+  const externalTop = [
+    { label: "Claude API", x: 80, y: 10, color: CORAL },
+    { label: "Platform API", x: 210, y: 10, color: ACCENT_MID },
+    { label: "Stripe", x: 340, y: 10, color: "#a0622d" },
+    { label: "ElevenLabs", x: 470, y: 10, color: "#3a5a8c" },
+    { label: "WhatsApp", x: 600, y: 10, color: "#8c3a5a" },
+  ];
+
+  const bottom = [
+    { label: "Ops Dashboard", x: 120, y: 195, color: ACCENT },
+    { label: "Pricing Engine", x: 300, y: 195, color: CORAL },
+    { label: "Google Sheets\n(Source of Truth)", x: 480, y: 195, color: "#555" },
+  ];
+
+  return (
+    <div style={{ overflowX: "auto", padding: "0 0 8px" }}>
+      <svg viewBox="0 0 760 240" style={{ width: "100%", maxWidth: 760, minWidth: 500, height: "auto", display: "block", margin: "0 auto" }}>
+        {externalTop.map((ext, i) => (
+          <line key={`t${i}`} x1={ext.x + 40} y1={30} x2={agents[i].x + 40} y2={agents[i].y} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+        ))}
+
+        <line x1={120} y1={140} x2={160} y2={195} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+        <line x1={250} y1={140} x2={160} y2={195} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+        <line x1={380} y1={140} x2={340} y2={195} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+        <line x1={510} y1={140} x2={520} y2={195} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+        <line x1={640} y1={140} x2={520} y2={195} stroke="#ddd8d0" strokeWidth={1} strokeDasharray="4,3" />
+
+        <line x1={120} y1={165} x2={640} y2={165} stroke="#b5ad9e" strokeWidth={1.5} />
+        {agents.map((a, i) => (
+          <circle key={`dot${i}`} cx={a.x + 40} cy={165} r={3} fill="#b5ad9e" />
+        ))}
+
+        {externalTop.map((ext, i) => (
+          <g key={`ext${i}`}>
+            <rect x={ext.x} y={ext.y} width={80} height={24} rx={4} fill={ext.label === "Claude API" ? CORAL_LIGHT : "none"} stroke={ext.color} strokeWidth={ext.label === "Claude API" ? 2 : 1} opacity={ext.label === "Claude API" ? 1 : 0.5} />
+            <text x={ext.x + 40} y={ext.y + 16} textAnchor="middle" fontSize={9} fontFamily="system-ui, sans-serif" fill={ext.color} fontWeight={ext.label === "Claude API" ? 700 : 500}>{ext.label}</text>
+          </g>
+        ))}
+
+        {agents.map((a, i) => (
+          <g key={`a${i}`}>
+            <rect x={a.x} y={a.y} width={a.w} height={a.h} rx={6} fill={a.color} opacity={0.1} stroke={a.color} strokeWidth={1.5} />
+            {a.label.split("\n").map((line, li) => (
+              <text key={li} x={a.x + a.w / 2} y={a.y + 22 + li * 14} textAnchor="middle" fontSize={10} fontFamily="system-ui, sans-serif" fill={a.color} fontWeight={600}>{line}</text>
+            ))}
+          </g>
+        ))}
+
+        {bottom.map((b, i) => (
+          <g key={`b${i}`}>
+            <rect x={b.x} y={b.y} width={b.label.includes("Google") ? 140 : 120} height={b.label.includes("Google") ? 36 : 28} rx={4} fill={b.label.includes("Pricing") ? CORAL_LIGHT : WARM_BG2} stroke={b.label.includes("Pricing") ? CORAL + "44" : "#ddd8d0"} strokeWidth={1} />
+            {b.label.split("\n").map((line, li) => (
+              <text key={li} x={b.x + (b.label.includes("Google") ? 70 : 60)} y={b.y + 16 + li * 13} textAnchor="middle" fontSize={9} fontFamily="system-ui, sans-serif" fill={b.label.includes("Pricing") ? CORAL : "#5a5550"} fontWeight={b.label.includes("Pricing") ? 600 : 500}>{line}</text>
+            ))}
+          </g>
+        ))}
+
+        <text x={380} y={172} textAnchor="middle" fontSize={8} fontFamily="system-ui, sans-serif" fill="#b5ad9e" letterSpacing={1}>INTER-AGENT BUS</text>
+      </svg>
+    </div>
+  );
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
+function Portfolio() {
+  const [loaded, setLoaded] = useState(false);
+  const [statsInView, setStatsInView] = useState(false);
+  const [activeNav, setActiveNav] = useState("");
+  const statsRef = useRef(null);
+
+  useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStatsInView(true); obs.disconnect(); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const els = NAV_SECTIONS.map(s => document.getElementById(s.id)).filter(Boolean);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) setActiveNav(e.target.id); });
+    }, { threshold: 0.2, rootMargin: "-60px 0px -60% 0px" });
+    els.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const sf = "system-ui, -apple-system, sans-serif";
+
+  return (
+    <div style={{ minHeight: "100vh", background: WARM_BG, fontFamily: "'Georgia', 'Times New Roman', serif", color: "#1a1a1a" }}>
+
+      {/* Sticky Nav */}
+      <nav style={{
+        position: "sticky", top: 0, zIndex: 100,
+        background: "rgba(250,245,239,0.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid #e8e2d8",
+        padding: "0 24px",
+        opacity: loaded ? 1 : 0, transition: "opacity 0.4s ease 0.3s",
+      }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 0, overflowX: "auto", scrollbarWidth: "none" }}>
+          {NAV_SECTIONS.map(s => (
+            <button
+              key={s.id}
+              onClick={() => scrollTo(s.id)}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                padding: "14px 12px 12px",
+                fontSize: 11, fontFamily: sf, letterSpacing: "1px", textTransform: "uppercase",
+                color: activeNav === s.id ? CORAL : "#a09a92",
+                borderBottom: activeNav === s.id ? `2px solid ${CORAL}` : "2px solid transparent",
+                transition: "all 0.2s", whiteSpace: "nowrap",
+                fontWeight: activeNav === s.id ? 600 : 400,
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Application badge */}
+      <div style={{
+        background: ACCENT, borderBottom: `1px solid ${ACCENT_MID}`,
+        padding: "10px 24px", textAlign: "center",
+        opacity: loaded ? 1 : 0, transition: "opacity 0.4s ease 0.2s",
+      }}>
+        <span style={{ fontSize: 12, fontFamily: sf, color: "#FFFFFF", letterSpacing: "1.5px", fontWeight: 500 }}>
+          APPLICATION · AI EVANGELIST · OMETRIA
+        </span>
+      </div>
+
+      {/* Header */}
+      <div style={{
+        padding: "48px 0 40px", textAlign: "center",
+        opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(-10px)", transition: "all 0.6s ease",
+      }}>
+        <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 400, letterSpacing: "-0.5px", margin: "0 0 8px", color: ACCENT }}>
+          Harry Beaumont
+        </h1>
+        <p style={{ fontSize: "clamp(14px, 2vw, 17px)", color: "#6b6560", margin: "0 0 20px", fontStyle: "italic", letterSpacing: "0.3px" }}>
+          AI Evangelist · Internal Automation Builder · Production AI Systems
+        </p>
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", fontSize: 14, padding: "0 20px" }}>
+          <a href="https://github.com/h1beaumont" target="_blank" rel="noopener noreferrer" style={{ color: CORAL, textDecoration: "none", borderBottom: `1px solid ${CORAL}44`, paddingBottom: 2 }}>github.com/h1beaumont</a>
+          <a href="https://ops.keystays.uk" target="_blank" rel="noopener noreferrer" style={{ color: CORAL, textDecoration: "none", borderBottom: `1px solid ${CORAL}44`, paddingBottom: 2 }}>ops.keystays.uk ↗</a>
+          <a href="https://keystays.co.uk" target="_blank" rel="noopener noreferrer" style={{ color: CORAL, textDecoration: "none", borderBottom: `1px solid ${CORAL}44`, paddingBottom: 2 }}>keystays.co.uk ↗</a>
+          <a href="https://midlandsdigital.ai" target="_blank" rel="noopener noreferrer" style={{ color: CORAL, textDecoration: "none", borderBottom: `1px solid ${CORAL}44`, paddingBottom: 2 }}>midlandsdigital.ai ↗</a>
+          <span style={{ color: "#a09a92" }}>Nottingham, UK · Remote</span>
+        </div>
+      </div>
+
+      {/* Intro */}
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px", opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease 0.2s" }}>
+        <p style={{ fontSize: "clamp(15px, 2vw, 17px)", lineHeight: 1.75, color: "#3d3832", margin: 0 }}>
+          I run a 68-property short-term rental portfolio as a one-person operation. The only reason that's possible
+          is the AI-powered automation stack I built myself: five agents, a dynamic pricing engine, and a 13-section
+          ops dashboard — 112,000+ lines of code across 85+ scripts, with the Claude API in production daily.
+          Every example project in the Ometria AI Evangelist job description maps to something I've already shipped.
+          This portfolio shows all of it.
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div ref={statsRef} style={{ maxWidth: 800, margin: "40px auto 0", padding: "0 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, padding: "28px 0", borderTop: "1px solid #e8e2d8", borderBottom: "1px solid #e8e2d8" }}>
+          {STATS.map((s, i) => <StatCard key={i} stat={s} index={i} inView={statsInView} />)}
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "48px 24px 0" }}>
+
+        {/* Role Match — Maps JD examples to my builds */}
+        <Reveal>
+          <SectionHeading id="match" accent={true}>Your Example Projects → My Production Systems</SectionHeading>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <p style={{ fontSize: "clamp(14px, 1.8vw, 15.5px)", lineHeight: 1.7, color: "#5a5550", marginBottom: 24, fontStyle: "italic" }}>
+            The Ometria AI Evangelist listing includes five example projects. Here's what I've already built for each one.
+          </p>
+        </Reveal>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 56 }}>
+          {EXAMPLE_PROJECTS.map((ex, i) => (
+            <Reveal key={i} delay={i * 0.06}>
+              <div style={{ padding: "24px 28px", background: "#FEFCF9", border: `1px solid #e8e2d8`, borderRadius: 8, borderLeft: `3px solid ${CORAL}` }}>
+                <div style={{ fontSize: 11, fontFamily: sf, textTransform: "uppercase", letterSpacing: "1.2px", color: CORAL, marginBottom: 6, fontWeight: 600 }}>
+                  Ometria example: "{ex.theirExample}"
+                </div>
+                <div style={{ fontSize: "clamp(16px, 2vw, 18px)", fontWeight: 400, color: ACCENT, marginBottom: 8 }}>
+                  {ex.myBuild}
+                </div>
+                <p style={{ fontSize: "clamp(13px, 1.8vw, 14.5px)", lineHeight: 1.65, color: "#5a5550", margin: "0 0 10px" }}>
+                  {ex.detail}
+                </p>
+                <div style={{ fontSize: 11, fontFamily: sf, color: "#2d6a4f", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2d6a4f", display: "inline-block" }} />
+                  {ex.status}
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Timeline */}
+        <Reveal>
+          <SectionHeading id="timeline">Timeline</SectionHeading>
+        </Reveal>
+        <div style={{ position: "relative", paddingLeft: 28, marginBottom: 56 }}>
+          <div style={{ position: "absolute", left: 6, top: 4, bottom: 4, width: 1, background: "#ddd8d0" }} />
+          {TIMELINE.map((item, idx) => (
+            <Reveal key={idx} delay={idx * 0.06}>
+              <div style={{ position: "relative", marginBottom: idx === TIMELINE.length - 1 ? 0 : 28 }}>
+                <div style={{ position: "absolute", left: -28, top: 5, width: 13, height: 13, borderRadius: "50%", background: item.type === "ai" ? CORAL : item.type === "founded" ? "#806a56" : WARM_BG, border: item.type === "ai" ? `2px solid ${CORAL}` : item.type === "founded" ? "2px solid #806a56" : "2px solid #b5ad9e" }} />
+                <div style={{ fontSize: 12, fontFamily: sf, color: item.type === "ai" ? CORAL : "#806a56", letterSpacing: "1px", marginBottom: 4, fontWeight: 600 }}>{item.year}</div>
+                <div style={{ fontSize: "clamp(15px, 2vw, 17px)", fontWeight: 400, color: "#1a1a1a", marginBottom: 4 }}>{item.title}</div>
+                <div style={{ fontSize: "clamp(13px, 1.8vw, 14.5px)", lineHeight: 1.65, color: "#5a5550" }}>{item.detail}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Architecture */}
+        <Reveal>
+          <SectionHeading id="architecture">System Architecture</SectionHeading>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div style={{ padding: "24px 16px", background: "#FEFCF9", border: "1px solid #e8e2d8", borderRadius: 8, marginBottom: 56 }}>
+            <ArchitectureDiagram />
+            <p style={{ fontSize: 12, fontFamily: sf, color: "#806a56", textAlign: "center", margin: "12px 0 0", fontStyle: "italic" }}>
+              5 autonomous agents communicating via inter-agent bus — Claude API powers the generative layer, deterministic routing handles classification and decisions
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Agents */}
+        <Reveal>
+          <SectionHeading id="agents">The 5-Agent AI Stack</SectionHeading>
+        </Reveal>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 56 }}>
+          {AGENTS.map((a, i) => (
+            <Reveal key={i} delay={i * 0.06}>
+              <ExpandableCard item={a} accentColor={ACCENT} />
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Tools */}
+        <Reveal>
+          <SectionHeading id="tools">Internal Tools Built</SectionHeading>
+        </Reveal>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 56 }}>
+          {TOOLS.map((t, i) => (
+            <Reveal key={i} delay={i * 0.06}>
+              <ExpandableCard item={t} accentColor={ACCENT} />
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Integration Ecosystem */}
+        <Reveal>
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 12, fontFamily: sf, textTransform: "uppercase", letterSpacing: "1.5px", color: "#b5ad9e", marginBottom: 12, fontWeight: 500 }}>Integration Ecosystem — 20+ APIs</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {INTEGRATIONS.map((int, i) => {
+                const c = INTEGRATION_COLORS[int.category];
+                return (
+                  <span key={i} style={{
+                    fontSize: 13, fontFamily: sf, fontWeight: int.category === "ai" ? 600 : 500,
+                    padding: "7px 16px", borderRadius: 20,
+                    background: c.bg, color: c.color,
+                    border: `1px solid ${c.color}22`,
+                    letterSpacing: "0.2px",
+                  }}>
+                    {int.name}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Example Projects section already above */}
+
+        {/* AI Practice */}
+        <Reveal>
+          <SectionHeading id="ai-practice">AI Practice &amp; Methodology</SectionHeading>
+        </Reveal>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 56 }}>
+          {AI_PRACTICE.map((item, idx) => (
+            <Reveal key={idx} delay={idx * 0.06}>
+              <ExpandableCard item={item} accentColor={ACCENT} />
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Lessons */}
+        <Reveal>
+          <SectionHeading id="lessons">Lessons from Shipping AI in Production</SectionHeading>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div style={{ padding: "32px", background: "#FEFCF9", border: "1px solid #e8e2d8", borderRadius: 8, marginBottom: 56 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {LESSONS.map((lesson, i) => (
+                <div key={i} style={{ paddingLeft: 16, borderLeft: `2px solid ${i === 0 ? CORAL : "#e8e2d8"}` }}>
+                  <div style={{ fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 500, color: "#1a1a1a", marginBottom: 4 }}>{lesson.title}</div>
+                  <p style={{ fontSize: "clamp(12px, 1.6vw, 14px)", lineHeight: 1.65, color: "#5a5550", margin: 0 }}>{lesson.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Why Ometria */}
+        <Reveal>
+          <SectionHeading id="why-ometria" accent={true}>Why Ometria — Why This Role</SectionHeading>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div style={{ padding: "36px", background: "#FEFCF9", border: `1px solid ${CORAL}33`, borderRadius: 8, marginBottom: 56 }}>
+            <p style={{ fontSize: "clamp(15px, 2vw, 17px)", lineHeight: 1.8, color: "#3d3832", margin: "0 0 20px" }}>
+              Your job description says you're looking for "practical builders who enjoy solving messy real-world problems with cutting edge agentic technology." I've spent the last three years doing exactly that — building AI-powered automation systems that run a 68-property business as a one-person operation. Not prototypes. Not demos. Production systems that handle real money, real customers, and real consequences every day.
+            </p>
+            <p style={{ fontSize: "clamp(15px, 2vw, 17px)", lineHeight: 1.8, color: "#3d3832", margin: "0 0 20px" }}>
+              The role sits at the intersection of operations, product, and engineering — and that's where I've been living. I understand how business processes actually work (because I run one), I know how to break them into structured steps and design agent-based systems (because I've built five), and I know how to make those systems reliable in production (because mine run every day with real money on the line).
+            </p>
+            <p style={{ fontSize: "clamp(15px, 2vw, 17px)", lineHeight: 1.8, color: "#3d3832", margin: "0 0 20px" }}>
+              I'm excited about Ometria's approach — using AI to make everyday work faster, simpler, and more scalable for the humans in the organisation. That's exactly the design philosophy behind every system I've built: AI handles the repeatable work, humans handle the judgment calls.
+            </p>
+            <div style={{ padding: "20px 24px", background: ACCENT, borderRadius: 6, marginTop: 8 }}>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: "#FFFFFF", margin: 0, fontFamily: sf, fontWeight: 500 }}>
+                Based in Nottingham, UK · Available immediately · Happy to talk — harrybeaumont0@gmail.com
+              </p>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+
+      {/* Footer */}
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px 80px" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", padding: "40px 0 0", borderTop: "1px solid #e8e2d8" }}>
+            <p style={{ fontSize: 14, color: "#806a56", fontStyle: "italic", margin: "0 0 12px", lineHeight: 1.6 }}>
+              Applying for: AI Evangelist · Ometria · Remote · March 2026
+            </p>
+            <p style={{ fontSize: 12, color: "#b5ad9e", margin: 0 }}>
+              harrybeaumont0@gmail.com · <a href="https://github.com/h1beaumont" target="_blank" rel="noopener noreferrer" style={{ color: "#b5ad9e", textDecoration: "none" }}>github.com/h1beaumont</a>
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Portfolio />);
+</script>
+</body>
+</html>
